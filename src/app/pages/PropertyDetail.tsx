@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router';
 import { motion, AnimatePresence } from 'motion/react';
-import { Bed, Bath, Maximize, MapPin, Phone, MessageCircle, Heart, ArrowRight, CheckCircle, Building2, Eye, CreditCard, Wallet } from 'lucide-react';
+import { Bed, Bath, Maximize, MapPin, Phone, MessageCircle, Heart, ArrowRight, CheckCircle, Building2, Eye, CreditCard, Wallet, ChevronLeft } from 'lucide-react';
 import { api } from '../lib/api';
 import { useAuth } from '../context/AuthContext';
 
@@ -18,11 +18,22 @@ export default function PropertyDetail() {
   const [paymentMethod, setPaymentMethod] = useState<'instapay' | 'vodafone'>('instapay');
   const [paymentLoading, setPaymentLoading] = useState(false);
   const [paymentDone, setPaymentDone] = useState(false);
+  const [recommendations, setRecommendations] = useState<any[]>([]);
 
   useEffect(() => {
     if (id) {
       api.getProperty(Number(id))
-        .then(setProperty)
+        .then(prop => {
+          setProperty(prop);
+          // Fetch similar properties based on type and purpose
+          return api.getProperties({ type: prop.type, purpose: prop.purpose, limit: 3 });
+        })
+        .then(result => {
+          const props = Array.isArray(result) ? result : (result?.properties || []);
+          // Filter out current property and limit to 3
+          const filtered = props.filter((p: any) => p.id !== Number(id)).slice(0, 3);
+          setRecommendations(filtered);
+        })
         .catch(() => navigate('/properties'))
         .finally(() => setLoading(false));
     }
@@ -187,6 +198,56 @@ export default function PropertyDetail() {
             </motion.div>
           </div>
         </div>
+
+        {/* Recommendations */}
+        {recommendations.length > 0 && (
+          <div className="mt-16 pt-8 border-t border-gray-200">
+            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+              <h2 className="text-2xl font-black text-gray-900 mb-6">عقارات مشابهة قد تنال إعجابك</h2>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {recommendations.map((rec, idx) => {
+                  const imgs = rec.images?.length ? rec.images.map((i: any) => i.url) : ['https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=400&h=300&fit=crop'];
+                  return (
+                    <motion.div key={rec.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: idx * 0.1 }}
+                      className="bg-white rounded-2xl shadow-sm hover:shadow-lg transition-shadow overflow-hidden border border-gray-100 group"
+                    >
+                      <div className="relative h-48 overflow-hidden bg-gray-100">
+                        <img src={imgs[0]} alt={rec.title_ar} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
+                          onError={e => { (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=400&h=300&fit=crop'; }}
+                        />
+                        <div className="absolute top-2 right-2 flex gap-1">
+                          <span className="bg-[#bca056] text-[#005a7d] text-xs font-bold px-2 py-1 rounded-full">{rec.purpose === 'sale' ? 'للبيع' : 'للإيجار'}</span>
+                        </div>
+                      </div>
+                      <div className="p-4">
+                        <Link to={`/properties/${rec.id}`} className="block">
+                          <h3 className="font-bold text-gray-900 text-sm line-clamp-2 hover:text-[#005a7d] transition-colors mb-2">{rec.title_ar}</h3>
+                        </Link>
+                        <div className="flex items-center gap-1 text-gray-500 text-xs mb-3">
+                          <MapPin size={12} className="text-[#bca056]" />
+                          <span>{rec.district}</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-xs text-gray-600 mb-3 flex-wrap">
+                          {rec.bedrooms > 0 && <span className="flex items-center gap-0.5"><Bed size={12} />{rec.bedrooms}</span>}
+                          {rec.bathrooms > 0 && <span className="flex items-center gap-0.5"><Bath size={12} />{rec.bathrooms}</span>}
+                          {rec.area > 0 && <span className="flex items-center gap-0.5"><Maximize size={12} />{rec.area}م²</span>}
+                        </div>
+                        <div className="flex items-end justify-between">
+                          <div>
+                            <div className="text-[#005a7d] font-black text-sm">{Number(rec.price).toLocaleString('ar-EG')} ج</div>
+                          </div>
+                          <Link to={`/properties/${rec.id}`} className="text-[#005a7d] hover:text-[#007a9a] text-sm font-bold flex items-center gap-0.5">
+                            التفاصيل <ChevronLeft size={12} />
+                          </Link>
+                        </div>
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </div>
+            </motion.div>
+          </div>
+        )}
       </div>
 
       {/* Payment Modal */}

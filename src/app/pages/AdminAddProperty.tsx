@@ -242,7 +242,7 @@ export default function AdminAddProperty() {
                   className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-[#bca056]"
                   list="districts-list" required />
                 <datalist id="districts-list">
-                  {['التجمع الخامس','مصر الجديدة','العاصمة الإدارية','طريق السويس','التجمع السادس','جولدن سكوير','النرجس الجديدة','بيت الوطن','شمال الرحاب','مدينة نصر','هليوبوليس','سيدي جابر','سموحة','المنتزه','العجمي','ستانلي','المندرة','كليوباترا','الدخيلة','برج العرب','الشيخ زايد','أكتوبر السادس','الجيزة','المهندسين','الزمالك','المعادي','الرحاب','القاهرة الجديدة','الشروق','مناطق أخرى'].map(d => (
+                  {['التجمع الخامس','مصر الجديدة','طريق السويس','التجمع السادس','جولدن سكوير','النرجس الجديدة','بيت الوطن','شمال الرحاب','مدينة نصر','هليوبوليس','الشيخ زايد','أكتوبر السادس','الجيزة','الدقي','المهندسين','الزمالك','المعادي','الرحاب','القاهرة الجديدة','الشروق','المقطم','حلوان','التجمع الأول','التجمع الثالث','مناطق أخرى'].map(d => (
                     <option key={d} value={d} />
                   ))}
                 </datalist>
@@ -279,7 +279,7 @@ export default function AdminAddProperty() {
               </div>
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-1.5">
-                  <Map size={14} />رابط موقع جوجل ماب (اختياري)
+                  <Map size={14} />رابط موقع جوجل ما�� (اختياري)
                 </label>
                 <input type="url" value={form.google_maps_url} onChange={e => update('google_maps_url', e.target.value)}
                   placeholder="https://maps.google.com/..."
