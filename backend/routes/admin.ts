@@ -116,6 +116,16 @@ router.patch('/properties/:id/reject', authenticate, requireAdmin, async (req: A
 
 router.patch('/properties/:id', authenticate, requireAdmin, async (req: AuthRequest, res: Response) => {
   try {
+    // Check if user is trying to edit a property they don't own (only superadmin can edit user properties)
+    if (req.user!.role !== 'superadmin') {
+      const propOwnerRes = await query('SELECT owner_id FROM properties WHERE id=$1', [req.params.id]);
+      if (propOwnerRes.rows.length === 0) return res.status(404).json({ error: 'العقار غير موجود' });
+      const prop = propOwnerRes.rows[0];
+      // If the property has an owner (user-submitted) and the current user is not superadmin, prevent edit
+      if (prop.owner_id && prop.owner_id !== req.user!.id) {
+        return res.status(403).json({ error: 'حدث خطا' });
+      }
+    }
     const {
       title, title_ar, description, description_ar, price, area, rooms, bedrooms, bathrooms, district,
       city, address, type, purpose, floor, contact_phone, is_featured, down_payment, delivery_status,

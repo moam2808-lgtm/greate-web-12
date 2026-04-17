@@ -1,23 +1,19 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router';
 import { motion, AnimatePresence } from 'motion/react';
-import { Search, SlidersHorizontal, X, Building2, Phone, MapPin, Star, ChevronLeft, BedDouble, Bath, Maximize2, Loader2 } from 'lucide-react';
+import { Search, SlidersHorizontal, X, Building2, Phone, MapPin, Star, ChevronLeft, ChevronRight, BedDouble, Bath, Maximize2, Loader2 } from 'lucide-react';
 import { api } from '../lib/api';
 
 const COMPANY_PHONE = '01100111618';
 
 export const FEATURED: any[] = [];
 
-const DISTRICTS_FILTER = ['الكل', 'طريق السويس', 'التجمع الخامس', 'جولدن سكوير', 'العاصمة الإدارية', 'التجمع السادس', 'مناطق أخرى'];
+const DISTRICTS_FILTER = ['الكل', 'طريق السويس', 'التجمع الخامس', 'جولدن سكوير', 'التجمع السادس', 'مصر الجديدة', 'الشيخ زايد', 'مناطق أخرى'];
 const SEARCH_AREAS = [
-  'سيدي جابر', 'سموحة', 'المنتزه', 'العجمي', 'ستانلي', 'المندرة', 'كليوباترا', 'محطة الرمل', 'الأنفوشي', 'الميناء', 'الدخيلة', 'برج العرب',
-  'جليم', 'بولكلي', 'رشدي', 'المعمورة', 'أبو قير', 'العصافرة', 'السيوف', 'سيدي بشر', 'لوران',
-  'التجمع الخامس', 'التجمع السادس', 'العاصمة الإدارية', 'مصر الجديدة', 'جولدن سكوير', 'النرجس الجديدة',
+  'التجمع الخامس', 'التجمع السادس', 'مصر الجديدة', 'جولدن سكوير', 'النرجس الجديدة',
   'بيت الوطن', 'شمال الرحاب', 'مدينة نصر', 'هليوبوليس', 'طريق السويس', 'الرحاب',
   'الشيخ زايد', 'أكتوبر السادس', 'الجيزة', 'الدقي', 'المهندسين', 'الزمالك', 'المعادي',
   'التجمع الأول', 'التجمع الثالث', 'القاهرة الجديدة', 'الشروق', 'المقطم', 'حلوان',
-  'الإسماعيلية', 'بورسعيد', 'السويس', 'دمياط', 'المنصورة', 'طنطا', 'الإسكندرية',
-  'القاهرة', 'أسيوط', 'سوهاج', 'قنا', 'الأقصر', 'أسوان', 'الغردقة', 'شرم الشيخ',
 ];
 const TYPES_FILTER = ['الكل', 'شقة', 'استديو', 'دوبلكس', 'فيلا', 'مكتب', 'شاليه', 'محل تجاري', 'أرض'];
 const PURPOSE_FILTER = ['الكل', 'بيع', 'إيجار', 'ريسيل'];
@@ -45,6 +41,7 @@ export default function Properties() {
 
   const [dbProperties, setDbProperties] = useState<any[]>([]);
   const [loadingProps, setLoadingProps] = useState(true);
+  const [featuredImageSlides, setFeaturedImageSlides] = useState<Record<number, number>>({});
 
   useEffect(() => {
     let cancelled = false;
@@ -71,6 +68,7 @@ export default function Properties() {
   }, []);
 
   const purposeMap: Record<string,string> = { 'بيع': 'sale', 'إيجار': 'rent', 'ريسيل': 'resale' };
+  const filteredAreas = SEARCH_AREAS.filter(area => area.includes(districtSearch));
 
   const filtered = FEATURED.filter(p => {
     const matchSearch = !search || p.title.includes(search) || p.desc.includes(search) || p.district.includes(search);
@@ -240,84 +238,132 @@ const safeDbProperties = Array.isArray(dbProperties) ? dbProperties : [];
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-            {[...filtered, ...filteredDbFeatured.map(p => ({
-              id: String(p.id),
-              title: p.title_ar || p.title || 'عقار مميز',
-              badge: 'عرض مميز',
-              badgeColor: 'bg-[#bca056]',
-              image: p.primary_image || (Array.isArray(p.images) && p.images[0]) || DEFAULT_IMAGE,
-              desc: p.description_ar || p.description || '',
-              district: p.district || '',
-              type: p.type || 'عقار',
-              rooms: p.bedrooms || p.rooms || 0,
-              price: formatPrice(p.price),
-              down: p.down_payment || p.delivery_status || 'تفاصيل متاحة',
-              contact_phone: p.contact_phone || COMPANY_PHONE,
-              delivery_status: p.delivery_status,
-            }))].map((f: any, i) => (
-              <motion.div
-                key={f.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.07 }}
-                className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-300 flex flex-col group"
-              >
-                <Link to={`/properties/${f.id}`} className="block">
-                <div className="relative h-48 overflow-hidden">
-                  <img
-                    src={f.image}
-                    alt={f.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    onError={e => { (e.target as HTMLImageElement).src = DEFAULT_IMAGE; }}
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
-                  <span className={`absolute top-3 right-3 ${f.badgeColor} text-white text-xs font-bold px-2.5 py-1 rounded-lg shadow`}>{f.badge}</span>
-                  <div className="absolute bottom-3 right-3 flex items-center gap-1.5 bg-white/90 backdrop-blur-sm rounded-lg px-2.5 py-1">
-                    <MapPin size={11} className="text-[#005a7d]" />
-                    <span className="text-xs font-semibold text-gray-700">{f.district}</span>
-                  </div>
-                </div>
-
-                <div className="p-5 flex flex-col flex-1">
-                  <h3 className="font-black text-gray-900 text-sm mb-3 leading-snug">{f.title}</h3>
-                  <p className="text-gray-500 text-xs leading-relaxed whitespace-pre-line mb-4 flex-1 line-clamp-5">{f.desc}</p>
-                  {f.delivery_status && (
-                    <p className="text-green-700 bg-green-50 border border-green-100 rounded-lg px-2.5 py-1 text-xs font-bold mb-3 w-fit">{f.delivery_status}</p>
-                  )}
-                </div>
-                </Link>
-
-                <div className="p-5 pt-0">
-                  <div className="border-t border-gray-100 pt-4">
-                    <div className="flex items-center justify-between mb-3">
-                      <div>
-                        <p className="text-[#005a7d] font-black text-sm">{f.price}</p>
-                        <p className="text-[#bca056] text-xs font-semibold mt-0.5">{f.down}</p>
-                      </div>
-                      <span className="text-xs bg-[#e6f2f5] text-[#005a7d] font-semibold px-2.5 py-1 rounded-lg">{f.type}</span>
+            {[...filtered, ...filteredDbFeatured.map(p => {
+              const imgs = Array.isArray(p.images) && p.images.length > 0 ? p.images.map((i: any) => typeof i === 'string' ? i : i.url) : [p.primary_image || DEFAULT_IMAGE];
+              return {
+                id: String(p.id),
+                title: p.title_ar || p.title || 'عقار مميز',
+                badge: 'عرض مميز',
+                badgeColor: 'bg-[#bca056]',
+                images: imgs,
+                desc: p.description_ar || p.description || '',
+                district: p.district || '',
+                type: p.type || 'عقار',
+                bedrooms: p.bedrooms || 0,
+                bathrooms: p.bathrooms || 0,
+                area: p.area || 0,
+                finishing_type: p.finishing_type || '',
+                rooms: p.rooms || 0,
+                price: formatPrice(p.price),
+                down: p.down_payment || p.delivery_status || 'تفاصيل متاحة',
+                contact_phone: p.contact_phone || COMPANY_PHONE,
+                delivery_status: p.delivery_status,
+                address: p.address || '',
+              };
+            })].map((f: any, i) => {
+              const curImg = featuredImageSlides[String(f.id)] ?? 0;
+              const slideImg = (dir: number) => {
+                setFeaturedImageSlides(prev => ({ ...prev, [String(f.id)]: ((prev[String(f.id)] ?? 0) + dir + f.images.length) % f.images.length }));
+              };
+              return (
+                <motion.div
+                  key={f.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.07 }}
+                  className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-300 flex flex-col group"
+                >
+                  <Link to={`/properties/${f.id}`} className="block">
+                  <div className="relative h-48 overflow-hidden">
+                    <AnimatePresence mode="wait">
+                      <motion.img
+                        key={curImg}
+                        src={f.images[curImg]}
+                        alt={f.title}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.3 }}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 absolute inset-0"
+                        onError={e => { (e.target as HTMLImageElement).src = DEFAULT_IMAGE; }}
+                      />
+                    </AnimatePresence>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
+                    <span className={`absolute top-3 right-3 ${f.badgeColor} text-white text-xs font-bold px-2.5 py-1 rounded-lg shadow`}>{f.badge}</span>
+                    {f.images.length > 1 && (
+                      <>
+                        <button onClick={() => slideImg(-1)} className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 bg-black/40 hover:bg-black/60 rounded-full flex items-center justify-center text-white transition-all z-10">
+                          <ChevronRight size={14} />
+                        </button>
+                        <button onClick={() => slideImg(1)} className="absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 bg-black/40 hover:bg-black/60 rounded-full flex items-center justify-center text-white transition-all z-10">
+                          <ChevronLeft size={14} />
+                        </button>
+                        <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1 z-10">
+                          {f.images.map((_: string, imgIdx: number) => (
+                            <button key={imgIdx} onClick={() => setFeaturedImageSlides(prev => ({ ...prev, [String(f.id)]: imgIdx }))}
+                              className={`rounded-full transition-all ${imgIdx === curImg ? 'w-3 h-1.5 bg-white' : 'w-1.5 h-1.5 bg-white/50'}`}
+                            />
+                          ))}
+                        </div>
+                      </>
+                    )}
+                    <div className="absolute bottom-3 right-3 flex items-center gap-1.5 bg-white/90 backdrop-blur-sm rounded-lg px-2.5 py-1">
+                      <MapPin size={11} className="text-[#005a7d]" />
+                      <span className="text-xs font-semibold text-gray-700">{f.district}</span>
                     </div>
-                    <a
-                      href={`tel:+2${f.contact_phone || COMPANY_PHONE}`}
-                      className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-[#005a7d] to-[#007a9a] text-white text-sm font-bold py-2.5 rounded-xl hover:opacity-90 transition-all"
-                    >
-                      <Phone size={14} />
-                      اتصل الآن
-                    </a>
-                    <a
-                      href={`https://wa.me/2${f.contact_phone || COMPANY_PHONE}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="w-full flex items-center justify-center gap-2 bg-green-50 text-green-700 text-sm font-bold py-2.5 rounded-xl hover:bg-green-100 transition-all mt-2 border border-green-200"
-                    >
-                      <svg viewBox="0 0 24 24" fill="currentColor" className="w-3.5 h-3.5">
-                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-                      </svg>
-                      واتساب
-                    </a>
                   </div>
-                </div>
-              </motion.div>
-            ))}
+
+                  <div className="p-5 flex flex-col flex-1">
+                    <h3 className="font-black text-gray-900 text-sm mb-3 leading-snug">{f.title}</h3>
+                    {f.address && <p className="text-gray-400 text-xs mb-2">{f.address}</p>}
+                    {f.desc && <p className="text-gray-500 text-xs leading-relaxed mb-3 line-clamp-2">{f.desc}</p>}
+                    
+                    {/* Property Specs */}
+                    <div className="flex items-center gap-2 text-xs text-gray-600 mb-3 flex-wrap">
+                      {f.bedrooms > 0 && <span className="flex items-center gap-0.5"><BedDouble size={12} className="text-[#005a7d]" />{f.bedrooms}</span>}
+                      {f.bathrooms > 0 && <span className="flex items-center gap-0.5"><Bath size={12} className="text-[#005a7d]" />{f.bathrooms}</span>}
+                      {f.area > 0 && <span className="flex items-center gap-0.5"><Maximize2 size={12} className="text-[#005a7d]" />{f.area}م²</span>}
+                      {f.finishing_type && <span className="bg-[#e6f2f5] text-[#005a7d] px-1.5 py-0.5 rounded text-xs font-medium">{f.finishing_type}</span>}
+                    </div>
+                    
+                    {f.delivery_status && (
+                      <p className="text-green-700 bg-green-50 border border-green-100 rounded-lg px-2.5 py-1 text-xs font-bold mb-3 w-fit">{f.delivery_status}</p>
+                    )}
+                  </div>
+                  </Link>
+
+                  <div className="p-5 pt-0">
+                    <div className="border-t border-gray-100 pt-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <div>
+                          <p className="text-[#005a7d] font-black text-sm">{f.price}</p>
+                          <p className="text-[#bca056] text-xs font-semibold mt-0.5">{f.down}</p>
+                        </div>
+                        <span className="text-xs bg-[#e6f2f5] text-[#005a7d] font-semibold px-2.5 py-1 rounded-lg">{f.type}</span>
+                      </div>
+                      <a
+                        href={`tel:+2${f.contact_phone || COMPANY_PHONE}`}
+                        className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-[#005a7d] to-[#007a9a] text-white text-sm font-bold py-2.5 rounded-xl hover:opacity-90 transition-all"
+                      >
+                        <Phone size={14} />
+                        اتصل الآن
+                      </a>
+                      <a
+                        href={`https://wa.me/2${f.contact_phone || COMPANY_PHONE}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-full flex items-center justify-center gap-2 bg-green-50 text-green-700 text-sm font-bold py-2.5 rounded-xl hover:bg-green-100 transition-all mt-2 border border-green-200"
+                      >
+                        <svg viewBox="0 0 24 24" fill="currentColor" className="w-3.5 h-3.5">
+                          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                        </svg>
+                        واتساب
+                      </a>
+                    </div>
+                  </div>
+                </motion.div>
+              );
+            })}
           </div>
         )}
 
@@ -407,6 +453,9 @@ const safeDbProperties = Array.isArray(dbProperties) ? dbProperties : [];
                           <Maximize2 size={12} className="text-[#005a7d]" />
                           {p.area} م²
                         </span>
+                      ) : null}
+                      {p.finishing_type ? (
+                        <span className="bg-[#e6f2f5] text-[#005a7d] px-2 py-0.5 rounded-lg text-xs font-medium">{p.finishing_type}</span>
                       ) : null}
                       {p.down_payment ? (
                         <span className="font-semibold text-[#bca056]">مقدم: {p.down_payment}</span>

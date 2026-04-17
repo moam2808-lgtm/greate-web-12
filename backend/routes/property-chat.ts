@@ -14,15 +14,27 @@ function isAdminUser(user: AuthRequest['user']): boolean {
 router.get('/:propertyId/messages', authenticate, async (req: AuthRequest, res: Response) => {
   try {
     const { propertyId } = req.params;
+    const user = req.user!;
     const prop = await query('SELECT owner_id FROM properties WHERE id=$1', [propertyId]);
     if (prop.rows.length === 0) return res.status(404).json({ error: 'العقار غير موجود' });
+    
+    const isAdminUser = user.role === 'superadmin' || user.role === 'admin';
+    
+    // If user is not admin, filter to show only their messages and admin replies
+    let whereClause = '';
+    let params: any[] = [propertyId];
+    if (!isAdminUser) {
+      whereClause = ' AND (m.sender_id = $2 OR m.is_admin = true)';
+      params.push(user.id);
+    }
+    
     const result = await query(
       `SELECT m.*, u.name as sender_name, u.role as sender_role, u.sub_role as sender_sub_role
        FROM property_chat_messages m
        JOIN users u ON u.id = m.sender_id
-       WHERE m.property_id = $1
+       WHERE m.property_id = $1${whereClause}
        ORDER BY m.created_at ASC`,
-      [propertyId]
+      params
     );
     res.json(result.rows);
   } catch (err) {

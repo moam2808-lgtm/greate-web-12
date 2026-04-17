@@ -31,6 +31,7 @@ export default function PropertyChat({ propertyId, propertyTitle, ownerName, onC
   const [loading, setLoading] = useState(false);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -66,9 +67,14 @@ export default function PropertyChat({ propertyId, propertyTitle, ownerName, onC
     if (!input.trim() || sending) return;
     setSending(true);
     setError('');
+    setSuccess('');
     try {
       const msg = await api.sendPropertyChatMessage(propertyId, input.trim());
-      if (msg) setMessages(prev => [...prev, msg]);
+      if (msg) {
+        setMessages(prev => [...prev, msg]);
+        setSuccess('تم ارسال طلبك بنجاح');
+        setTimeout(() => setSuccess(''), 3000);
+      }
       setInput('');
     } catch (err: any) {
       setError(err.message || 'خطأ في الإرسال');
@@ -151,7 +157,7 @@ export default function PropertyChat({ propertyId, propertyTitle, ownerName, onC
                   <div className={`max-w-[80%] ${isMe ? 'items-start' : 'items-end'} flex flex-col gap-1`}>
                     <div className="flex items-center gap-1.5 px-1">
                       <span className={`text-xs font-semibold ${isAdminMsg ? 'text-[#005a7d]' : 'text-gray-600'}`}>
-                        {isMe ? 'أنت' : msg.sender_name}
+                        {isMe ? 'أنت' : isAdminMsg ? 'Great Society Team' : msg.sender_name}
                       </span>
                       {isAdminMsg && (
                         <span className="text-xs bg-[#005a7d]/10 text-[#005a7d] px-1.5 py-0.5 rounded-md font-medium">
@@ -181,6 +187,12 @@ export default function PropertyChat({ propertyId, propertyTitle, ownerName, onC
       {error && (
         <div className="px-4 py-2 bg-red-50 border-t border-red-100">
           <p className="text-red-500 text-xs">{error}</p>
+        </div>
+      )}
+
+      {success && (
+        <div className="px-4 py-2 bg-green-50 border-t border-green-100">
+          <p className="text-green-600 text-xs">{success}</p>
         </div>
       )}
 
