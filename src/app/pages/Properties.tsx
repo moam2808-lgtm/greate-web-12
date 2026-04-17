@@ -8,16 +8,12 @@ const COMPANY_PHONE = '01100111618';
 
 export const FEATURED: any[] = [];
 
-const DISTRICTS_FILTER = ['الكل', 'طريق السويس', 'التجمع الخامس', 'جولدن سكوير', 'العاصمة الإدارية', 'التجمع السادس', 'مناطق أخرى'];
+const DISTRICTS_FILTER = ['الكل', 'طريق السويس', 'التجمع الخامس', 'جولدن سكوير', 'التجمع السادس', 'مصر الجديدة', 'الشيخ زايد', 'مناطق أخرى'];
 const SEARCH_AREAS = [
-  'سيدي جابر', 'سموحة', 'المنتزه', 'العجمي', 'ستانلي', 'المندرة', 'كليوباترا', 'محطة الرمل', 'الأنفوشي', 'الميناء', 'الدخيلة', 'برج العرب',
-  'جليم', 'بولكلي', 'رشدي', 'المعمورة', 'أبو قير', 'العصافرة', 'السيوف', 'سيدي بشر', 'لوران',
-  'التجمع الخامس', 'التجمع السادس', 'العاصمة الإدارية', 'مصر الجديدة', 'جولدن سكوير', 'النرجس الجديدة',
+  'التجمع الخامس', 'التجمع السادس', 'مصر الجديدة', 'جولدن سكوير', 'النرجس الجديدة',
   'بيت الوطن', 'شمال الرحاب', 'مدينة نصر', 'هليوبوليس', 'طريق السويس', 'الرحاب',
   'الشيخ زايد', 'أكتوبر السادس', 'الجيزة', 'الدقي', 'المهندسين', 'الزمالك', 'المعادي',
   'التجمع الأول', 'التجمع الثالث', 'القاهرة الجديدة', 'الشروق', 'المقطم', 'حلوان',
-  'الإسماعيلية', 'بورسعيد', 'السويس', 'دمياط', 'المنصورة', 'طنطا', 'الإسكندرية',
-  'القاهرة', 'أسيوط', 'سوهاج', 'قنا', 'الأقصر', 'أسوان', 'الغردقة', 'شرم الشيخ',
 ];
 const TYPES_FILTER = ['الكل', 'شقة', 'استديو', 'دوبلكس', 'فيلا', 'مكتب', 'شاليه', 'محل تجاري', 'أرض'];
 const PURPOSE_FILTER = ['الكل', 'بيع', 'إيجار', 'ريسيل'];
@@ -71,6 +67,7 @@ export default function Properties() {
   }, []);
 
   const purposeMap: Record<string,string> = { 'بيع': 'sale', 'إيجار': 'rent', 'ريسيل': 'resale' };
+  const filteredAreas = SEARCH_AREAS.filter(area => area.includes(districtSearch));
 
   const filtered = FEATURED.filter(p => {
     const matchSearch = !search || p.title.includes(search) || p.desc.includes(search) || p.district.includes(search);
@@ -407,6 +404,9 @@ const safeDbProperties = Array.isArray(dbProperties) ? dbProperties : [];
                           <Maximize2 size={12} className="text-[#005a7d]" />
                           {p.area} م²
                         </span>
+                      ) : null}
+                      {p.finishing_type ? (
+                        <span className="bg-[#e6f2f5] text-[#005a7d] px-2 py-0.5 rounded-lg text-xs font-medium">{p.finishing_type}</span>
                       ) : null}
                       {p.down_payment ? (
                         <span className="font-semibold text-[#bca056]">مقدم: {p.down_payment}</span>
