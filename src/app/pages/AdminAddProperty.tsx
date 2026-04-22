@@ -247,12 +247,7 @@ export default function AdminAddProperty() {
                   ))}
                 </datalist>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">العنوان التفصيلي</label>
-                <input type="text" value={form.address} onChange={e => update('address', e.target.value)}
-                  placeholder="مثال: شارع النيل، المبنى 5"
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-[#bca056]" />
-              </div>
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">المقدم</label>
                 <input type="text" value={form.down_payment} onChange={e => update('down_payment', e.target.value)}

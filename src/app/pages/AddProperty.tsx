@@ -354,11 +354,7 @@ export default function AddProperty() {
                   </div>
                 )}
               </div>
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1.5">العنوان التفصيلي</label>
-                <input value={form.address} onChange={e => update('address', e.target.value)} placeholder="رقم الشارع، اسم الشارع..."
-                  className="w-full border-2 border-gray-100 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#005a7d]" />
-              </div>
+
 
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">صور العقار</label>

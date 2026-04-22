@@ -256,12 +256,7 @@ export default function UserAddProperty() {
                   ))}
                 </datalist>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">العنوان التفصيلي</label>
-                <input type="text" value={form.address} onChange={e => update('address', e.target.value)}
-                  placeholder="مثال: شارع النيل، المبنى 5"
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-[#005a7d]" />
-              </div>
+
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-2">رقم تواصلك <span className="text-red-500">*</span></label>
                 <input type="tel" value={form.contact_phone} onChange={e => update('contact_phone', e.target.value)}
