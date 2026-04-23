@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, Send, MessageCircle, Bot, Phone } from 'lucide-react';
+import { X, Send, MessageCircle, Bot } from 'lucide-react';
 
 interface Message { role: 'user' | 'assistant'; content: string; }
 
@@ -224,9 +224,6 @@ export default function AIChat() {
                   <span className="text-white/80 text-xs">متاح الآن</span>
                 </div>
               </div>
-              <a href={`tel:+20${CONTACT}`} className="w-8 h-8 bg-white/20 hover:bg-white/30 rounded-xl flex items-center justify-center text-white transition-colors" title="اتصل بنا">
-                <Phone size={15} />
-              </a>
               <button onClick={() => setOpen(false)} className="text-white/70 hover:text-white transition-colors p-1">
                 <X size={18} />
               </button>
