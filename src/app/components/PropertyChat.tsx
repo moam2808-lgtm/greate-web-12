@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router';
 import { motion, AnimatePresence } from 'motion/react';
 import { MessageSquare, X, Send, Building2, ChevronRight } from 'lucide-react';
 import { api } from '../lib/api';
@@ -26,6 +27,7 @@ interface PropertyChatProps {
 
 export default function PropertyChat({ propertyId, propertyTitle, ownerName, onClose, embedded = false }: PropertyChatProps) {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -46,7 +48,15 @@ export default function PropertyChat({ propertyId, propertyTitle, ownerName, onC
   const loadMessages = async () => {
     try {
       const data = await api.getPropertyChatMessages(propertyId);
-      if (data) setMessages(data);
+      // Filter messages to only show messages from current user and admins in private chats
+      const filteredMessages = data.filter((msg: Message) => {
+        // Admin messages are always visible
+        if (msg.is_admin) return true;
+        // User messages are only visible to that user and admins
+        if (!user?.id) return false;
+        return msg.sender_id === user.id;
+      });
+      if (filteredMessages) setMessages(filteredMessages);
     } catch {}
   };
 
@@ -163,6 +173,14 @@ export default function PropertyChat({ propertyId, propertyTitle, ownerName, onC
                         <span className="text-xs bg-[#005a7d]/10 text-[#005a7d] px-1.5 py-0.5 rounded-md font-medium">
                           {msg.sender_role === 'superadmin' ? 'سوبر أدمن' : msg.sender_sub_role === 'data_entry' ? 'داتا انتري' : msg.sender_sub_role === 'property_manager' ? 'مدير عقارات' : 'إدارة'}
                         </span>
+                      )}
+                      {!isMe && !isAdminMsg && (
+                        <button 
+                          onClick={() => navigate(`/profile/${msg.sender_id}`)}
+                          className="ml-1 text-xs text-[#005a7d] hover:underline font-medium"
+                        >
+                          عرض البروفايل
+                        </button>
                       )}
                     </div>
                     <div className={`px-4 py-2.5 rounded-2xl text-sm leading-relaxed shadow-sm ${

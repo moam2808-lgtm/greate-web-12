@@ -261,8 +261,7 @@ export default function SubAdminDashboard() {
       { id: 'profile', label: 'بروفايلي', icon: <User size={16} /> },
     ],
     support: [
-      { id: 'tickets', label: 'التذاكر المفتوحة', icon: <MessageSquare size={16} /> },
-      { id: 'closed', label: 'المغلقة', icon: <CheckCircle size={16} /> },
+      { id: 'tickets', label: 'التذاكر', icon: <MessageSquare size={16} /> },
       { id: 'profile', label: 'بروفايلي', icon: <User size={16} /> },
     ],
   };
@@ -670,7 +669,7 @@ export default function SubAdminDashboard() {
             )}
 
             {/* ─── SUPPORT: TICKETS ─── */}
-            {(activeTab === 'tickets' || activeTab === 'closed') && (
+            {activeTab === 'tickets' && (
               <motion.div key={activeTab} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
                 {activeTicket ? (
                   <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
@@ -722,7 +721,7 @@ export default function SubAdminDashboard() {
                 ) : (
                   <div className="space-y-3">
                     {tickets
-                      .filter(t => activeTab === 'tickets' ? t.status === 'open' : t.status === 'closed')
+                      .filter(t => t.status === 'open')
                       .map(ticket => (
                         <motion.div key={ticket.id} layout
                           className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 cursor-pointer hover:border-purple-200 transition-all"
@@ -730,7 +729,7 @@ export default function SubAdminDashboard() {
                         >
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-3">
-                              <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${ticket.status === 'open' ? 'bg-orange-100 text-orange-600' : 'bg-gray-100 text-gray-500'}`}>
+                              <div className={`w-10 h-10 rounded-xl flex items-center justify-center bg-orange-100 text-orange-600`}>
                                 <MessageSquare size={18} />
                               </div>
                               <div>
@@ -742,18 +741,18 @@ export default function SubAdminDashboard() {
                               </div>
                             </div>
                             <div className="flex items-center gap-2">
-                              <span className={`px-2 py-0.5 rounded-md text-xs font-bold ${ticket.status === 'open' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
-                                {ticket.status === 'open' ? 'مفتوح' : 'مغلق'}
+                              <span className={`px-2 py-0.5 rounded-md text-xs font-bold bg-green-100 text-green-700`}>
+                                مفتوح
                               </span>
                               <ChevronRight size={16} className="text-gray-400" />
                             </div>
                           </div>
                         </motion.div>
                       ))}
-                    {tickets.filter(t => activeTab === 'tickets' ? t.status === 'open' : t.status === 'closed').length === 0 && (
+                    {tickets.filter(t => t.status === 'open').length === 0 && (
                       <div className="text-center py-16 bg-white rounded-2xl border border-dashed border-gray-200">
                         <MessageSquare size={48} className="text-gray-300 mx-auto mb-3" />
-                        <p className="font-bold text-gray-500">لا توجد تذاكر {activeTab === 'tickets' ? 'مفتوحة' : 'مغلقة'}</p>
+                        <p className="font-bold text-gray-500">لا توجد تذاكر مفتوحة</p>
                       </div>
                     )}
                   </div>
