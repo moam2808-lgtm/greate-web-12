@@ -19,8 +19,8 @@ async function notifyPurchaseRequest(propertyId: number, buyerId: number, amount
     );
     for (const admin of adminsRes.rows) {
       await query(
-        `INSERT INTO notifications (user_id, type, title, message, property_data, user_data)
-         VALUES ($1, $2, $3, $4, $5, $6)`,
+        `INSERT INTO notifications (user_id, type, title, message, property_data, user_data, link)
+         VALUES ($1, $2, $3, $4, $5, $6, $7)`,
         [
           admin.id,
           'purchase_request',
@@ -28,6 +28,7 @@ async function notifyPurchaseRequest(propertyId: number, buyerId: number, amount
           notifMessage,
           JSON.stringify({ id: propertyId, title, district: prop.district, price: amount, contact_phone: prop.contact_phone }),
           JSON.stringify({ id: buyerId, name: buyer.name, email: buyer.email, phone: buyer.phone, screenshot_url: screenshotUrl }),
+          '/admin?tab=payments'
         ]
       );
     }

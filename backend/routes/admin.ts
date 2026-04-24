@@ -347,4 +347,46 @@ router.patch('/payments/:id/approve', authenticate, requireAdmin, async (req: Au
   }
 });
 
+// Get user profile (public endpoint, but checks if viewing user or admin)
+router.get('/users/:id/profile', async (req: AuthRequest, res: Response) => {
+  try {
+    const userId = parseInt(req.params.id);
+    const viewingUserId = req.user?.id;
+    const isAdmin = req.user?.role === 'superadmin' || req.user?.role === 'admin';
+
+    if (!userId || isNaN(userId)) {
+      return res.status(400).json({ error: 'معرف المستخدم غير صحيح' });
+    }
+
+    const result = await query(
+      'SELECT id, name, email, phone, avatar_url, role, sub_role, created_at FROM users WHERE id=$1 AND is_active=true',
+      [userId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'المستخدم غير موجود' });
+    }
+
+    const profileData = result.rows[0];
+
+    // Check permissions: user can view own profile, admins can view all, others can view basic info only
+    if (viewingUserId === userId || isAdmin) {
+      // Full profile for owner and admins
+      return res.json(profileData);
+    }
+
+    // Return public profile info for others
+    return res.json({
+      id: profileData.id,
+      name: profileData.name,
+      avatar_url: profileData.avatar_url,
+      role: profileData.role,
+      created_at: profileData.created_at,
+    });
+  } catch (error) {
+    console.error('[admin/users/:id/profile]', error);
+    res.status(500).json({ error: 'خطأ في الخادم' });
+  }
+});
+
 export default router;
