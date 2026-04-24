@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useNavigate, Link } from 'react-router';
+import { useNavigate, Link, useSearchParams } from 'react-router';
 import { motion, AnimatePresence } from 'motion/react';
 import { LayoutDashboard, Building2, Users, CreditCard, CheckCircle, XCircle, Clock, LogOut, Eye, ShieldCheck, MessageSquare, Phone, Mail, Lock, X, EyeOff, User, Plus, Edit3, Trash2, PlusCircle, Loader2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -21,7 +21,8 @@ const SUB_ROLES = [
 export default function SuperAdminDashboard() {
   const { user, logout, isSuperAdmin, updateUser } = useAuth();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('overview');
+  const [searchParams] = useSearchParams();
+  const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'overview');
   const [stats, setStats] = useState<any>(null);
   const [properties, setProperties] = useState<any[]>([]);
   const [users, setUsers] = useState<any[]>([]);
@@ -574,11 +575,16 @@ export default function SuperAdminDashboard() {
                         <CreditCard size={18} className="text-[#005a7d]" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="font-medium text-gray-900 text-sm">{p.user_name || 'مستخدم'}</div>
-                        <div className="text-gray-400 text-xs">{p.property_title_ar || 'عقار'} · {Number(p.amount).toLocaleString()} ج · {p.payment_method}</div>
+                        <button
+                          onClick={() => p.buyer_id && navigate(`/profile/${p.buyer_id}`)}
+                          className="font-medium text-gray-900 text-sm hover:text-[#005a7d] transition-colors text-left cursor-pointer"
+                        >
+                          {p.buyer_name || p.user_name || 'مستخدم'}
+                        </button>
+                        <div className="text-gray-400 text-xs">{p.property_title_ar || p.property_title || 'عقار'} · {Number(p.amount).toLocaleString()} ج · {p.payment_method}</div>
                       </div>
-                      <span className={`px-2.5 py-1 rounded-lg text-xs font-bold flex-shrink-0 ${p.status === 'approved' ? 'bg-green-100 text-green-700' : p.status === 'rejected' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'}`}>
-                        {p.status === 'approved' ? 'موافق' : p.status === 'rejected' ? 'مرفوض' : 'بانتظار'}
+                      <span className={`px-2.5 py-1 rounded-lg text-xs font-bold flex-shrink-0 ${p.status === 'approved' || p.status === 'completed' ? 'bg-green-100 text-green-700' : p.status === 'rejected' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'}`}>
+                        {p.status === 'approved' || p.status === 'completed' ? 'موافق' : p.status === 'rejected' ? 'مرفوض' : 'بانتظار'}
                       </span>
                       {p.status === 'pending' && (
                         <button onClick={() => approvePayment(p.id)} className="px-3 py-1.5 bg-green-500 text-white text-xs font-bold rounded-lg hover:bg-green-600 transition-colors flex-shrink-0">

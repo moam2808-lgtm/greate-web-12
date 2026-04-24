@@ -28,7 +28,7 @@ async function notifyPurchaseRequest(propertyId: number, buyerId: number, amount
           notifMessage,
           JSON.stringify({ id: propertyId, title, district: prop.district, price: amount, contact_phone: prop.contact_phone }),
           JSON.stringify({ id: buyerId, name: buyer.name, email: buyer.email, phone: buyer.phone, screenshot_url: screenshotUrl }),
-          '/admin'
+          '/admin?tab=payments'
         ]
       );
     }

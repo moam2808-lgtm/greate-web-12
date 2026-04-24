@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate, useSearchParams } from 'react-router';
 import { motion, AnimatePresence } from 'motion/react';
 import { LayoutDashboard, Building2, Users, CheckCircle, XCircle, Clock, LogOut, Eye, CreditCard, AlertTriangle, Mail, User, MessageSquare, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -37,7 +37,8 @@ const DEFAULT_IMAGE = 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00
 export default function AdminDashboard() {
   const { user, logout, isAdmin, isSuperAdmin, subRole, updateUser } = useAuth();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('overview');
+  const [searchParams] = useSearchParams();
+  const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'overview');
   const [stats, setStats] = useState<any>(null);
   const [properties, setProperties] = useState<any[]>([]);
   const [payments, setPayments] = useState<any[]>([]);
@@ -385,6 +386,8 @@ function PropertyReviewItem({ property, onApprove, onReject, onDetails }: { prop
 }
 
 function PaymentItem({ payment, onApprove }: { payment: any; onApprove: () => void }) {
+  const navigate = useNavigate();
+  
   return (
     <div className="p-4 hover:bg-gray-50 transition-colors">
       <div className="flex items-center gap-4">
@@ -392,7 +395,12 @@ function PaymentItem({ payment, onApprove }: { payment: any; onApprove: () => vo
           <CreditCard size={18} className="text-[#005a7d]" />
         </div>
         <div className="flex-1 min-w-0">
-          <div className="font-medium text-gray-900 text-sm">{payment.buyer_name || payment.user_name || 'مستخدم'}</div>
+          <button
+            onClick={() => payment.buyer_id && navigate(`/profile/${payment.buyer_id}`)}
+            className="font-medium text-gray-900 text-sm hover:text-[#005a7d] transition-colors text-left cursor-pointer"
+          >
+            {payment.buyer_name || payment.user_name || 'مستخدم'}
+          </button>
           <div className="text-gray-400 text-xs">{Number(payment.amount).toLocaleString()} جنيه · {payment.payment_method === 'instapay' ? 'InstaPay' : payment.payment_method === 'vodafone' ? 'فودافون كاش' : payment.payment_method}</div>
           {payment.contact_phone && <div className="text-gray-400 text-xs">رقم التحويل: {payment.contact_phone}</div>}
         </div>
