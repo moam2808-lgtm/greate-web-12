@@ -33,7 +33,7 @@ export default function UserProfile() {
 
       try {
         const token = localStorage.getItem('token');
-        const res = await fetch(`/api/users/${id}/profile`, {
+        const res = await fetch(`/api/admin/users/${id}/profile`, {
           headers: token ? { Authorization: `Bearer ${token}` } : {},
         });
 
