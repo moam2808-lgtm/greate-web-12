@@ -18,6 +18,7 @@ import SubAdminDashboard from './pages/SubAdminDashboard';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import Terms from './pages/Terms';
 import UserEditProperty from './pages/UserEditProperty';
+import UserProfile from './pages/UserProfile';
 
 export const router = createBrowserRouter([
   {
@@ -27,6 +28,7 @@ export const router = createBrowserRouter([
       { index: true, Component: Home },
       { path: 'properties', Component: Properties },
       { path: 'properties/:id', Component: PropertyDetailEnhanced },
+      { path: 'profile/:id', Component: UserProfile },
       { path: 'sell', Component: UserAddProperty },
       { path: 'add-property', loader: () => redirect('/sell') },
       { path: 'contact', Component: Contact },
